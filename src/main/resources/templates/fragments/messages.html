@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="messages">
+    <div th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+        <strong>Ошибка валидации:</strong>
+        <ul class="mb-0 mt-2">
+            <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+        </ul>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Успешно!</strong> Операция выполнена.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Ошибка!</strong> Произошла ошибка при выполнении операции.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${param.deleted}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>Удалено!</strong> Запись успешно удалена.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+</html>

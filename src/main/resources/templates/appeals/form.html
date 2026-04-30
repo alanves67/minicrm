@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:if="${appeal.id}" th:text="'Редактировать обращение #' + ${appeal.id}">Редактирование обращения</title>
+    <title th:unless="${appeal.id}">Новое обращение - Mini CRM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Mini CRM</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/customers}">Клиенты</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/appeals}">Обращения</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 th:if="${appeal.id}" th:text="'Редактировать обращение #' + ${appeal.id}">Редактирование обращения</h3>
+                    <h3 th:unless="${appeal.id}">Новое обращение</h3>
+                </div>
+                <div class="card-body">
+                    <form th:action="${appeal.id} ? @{/appeals/update/{id}(id=${appeal.id})} : @{/appeals}"
+                          method="post"
+                          th:object="${appeal}">
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Тема *</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="subject"
+                                   th:field="*{subject}"
+                                   placeholder="Введите тему обращения">
+                            <div class="text-danger" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Описание *</label>
+                            <textarea class="form-control"
+                                      id="description"
+                                      th:field="*{description}"
+                                      rows="5"
+                                      placeholder="Подробно опишите вопрос или проблему"></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Статус</label>
+                            <select class="form-select" id="status" th:field="*{status}">
+                                <option th:each="status : ${statuses}"
+                                        th:value="${status}"
+                                        th:text="${status}">
+                                </option>
+                            </select>
+                            <div class="form-text">Статус обращения</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="customerId" class="form-label">Клиент *</label>
+                            <select class="form-select" id="customerId" th:field="*{customerId}" required>
+                                <option value="">Выберите клиента</option>
+                                <option th:each="cust : ${customers}"
+                                        th:value="${cust.id}"
+                                        th:text="${cust.firstName + ' ' + cust.lastName + ' (' + cust.email + ')'}">
+                                </option>
+                            </select>
+                            <div class="text-danger" th:if="${#fields.hasErrors('customerId')}" th:errors="*{customerId}"></div>
+                            <div class="form-text">
+                                <a th:href="@{/customers/new}" target="_blank">Добавить нового клиента</a>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Сохранить
+                            </button>
+                            <a th:href="@{/appeals}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
