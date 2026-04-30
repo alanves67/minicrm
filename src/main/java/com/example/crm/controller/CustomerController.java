@@ -1,6 +1,7 @@
 package com.example.crm.controller;
 
 import com.example.crm.dto.CustomerDto;
+import com.example.crm.service.PaginationValidator;
 import com.example.crm.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,11 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
 public class CustomerController {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "firstName", "lastName", "email", "company");
     private final CustomerService customerService;
 
     @GetMapping
@@ -23,6 +27,7 @@ public class CustomerController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
     ) {
+        PaginationValidator.validate(page, size, sortBy, sortDir, ALLOWED_SORT_FIELDS);
         return customerService.getCustomersPage(page, size, sortBy, sortDir);
     }
 

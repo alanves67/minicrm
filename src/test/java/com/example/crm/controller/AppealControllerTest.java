@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -46,5 +47,14 @@ class AppealControllerTest {
                 .andExpect(jsonPath("$.content[0].status").value("NEW"));
 
         verify(appealService).getAppealsPage(0, 20, "id", "asc");
+    }
+
+    @Test
+    void getAllAppeals_whenSizeTooLarge_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/appeals").param("size", "500"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+
+        verify(appealService, never()).getAppealsPage(0, 500, "id", "asc");
     }
 }

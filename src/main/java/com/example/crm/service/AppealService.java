@@ -16,12 +16,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AppealService {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "subject", "status", "createdAt", "updatedAt");
     private final AppealRepository appealRepository;
     private final CustomerRepository customerRepository;
 
@@ -34,6 +36,7 @@ public class AppealService {
 
     @Transactional(readOnly = true)
     public Page<AppealDto> getAppealsPage(int page, int size, String sortBy, String sortDir) {
+        PaginationValidator.validate(page, size, sortBy, sortDir, ALLOWED_SORT_FIELDS);
         Sort.Direction direction = "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return appealRepository.findAll(pageable).map(this::toDto);

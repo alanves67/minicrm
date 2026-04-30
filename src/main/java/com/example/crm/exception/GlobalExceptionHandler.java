@@ -1,6 +1,7 @@
 package com.example.crm.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,17 +17,17 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException ex) {
-        return buildSingleErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<Map<String, String>> handleConflict(ConflictException ex) {
-        return buildSingleErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    public ResponseEntity<ApiErrorResponse> handleConflict(ConflictException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, "CONFLICT", ex.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -37,22 +38,51 @@ public class GlobalExceptionHandler {
                                 : "Invalid value",
                         (existing, replacement) -> existing
                 ));
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "VALIDATION_ERROR",
+                "Validation failed",
+                request.getRequestURI(),
+                errors
+        );
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
-        return buildSingleErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", ex.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleUnexpected(Exception ex) {
-        return buildSingleErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error");
+    public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception ex, HttpServletRequest request) {
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "INTERNAL_ERROR",
+                "Unexpected server error",
+                request.getRequestURI(),
+                null
+        );
     }
 
-    private ResponseEntity<Map<String, String>> buildSingleErrorResponse(HttpStatus status, String message) {
-        Map<String, String> errorBody = new HashMap<>();
-        errorBody.put("error", message);
+    private ResponseEntity<ApiErrorResponse> buildErrorResponse(
+            HttpStatus status,
+            String code,
+            String message,
+            String path,
+            Map<String, String> fieldErrors
+    ) {
+        ApiErrorResponse errorBody = new ApiErrorResponse(
+                code,
+                message,
+                status.value(),
+                path,
+                LocalDateTime.now(),
+                fieldErrors
+        );
         return new ResponseEntity<>(errorBody, status);
     }
 }

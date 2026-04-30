@@ -4,6 +4,7 @@ import com.example.crm.dto.AppealDto;
 import com.example.crm.model.AppealStatus;
 import com.example.crm.service.AppealService;
 import com.example.crm.service.CustomerService;
+import com.example.crm.service.PaginationValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,11 +13,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @Controller
 @RequestMapping("/appeals")
 @RequiredArgsConstructor
 public class AppealWebController {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "subject", "status", "createdAt", "updatedAt");
     private final AppealService appealService;
     private final CustomerService customerService;
 
@@ -28,6 +32,7 @@ public class AppealWebController {
             @RequestParam(defaultValue = "asc") String sortDir,
             Model model
     ) {
+        PaginationValidator.validate(page, size, sortBy, sortDir, ALLOWED_SORT_FIELDS);
         Page<AppealDto> appealPage = appealService.getAppealsPage(page, size, sortBy, sortDir);
         model.addAttribute("appealPage", appealPage);
         model.addAttribute("sortBy", sortBy);

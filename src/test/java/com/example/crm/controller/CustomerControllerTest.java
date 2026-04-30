@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,6 +67,21 @@ class CustomerControllerTest {
         mockMvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors.firstName").exists())
+                .andExpect(jsonPath("$.fieldErrors.email").exists());
+    }
+
+    @Test
+    void getAllCustomers_whenSortFieldInvalid_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/customers")
+                        .param("sortBy", "dropTable")
+                        .param("sortDir", "asc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message").exists());
+
+        verify(customerService, never()).getCustomersPage(0, 20, "dropTable", "asc");
     }
 }
