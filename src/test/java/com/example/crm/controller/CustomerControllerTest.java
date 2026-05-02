@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +37,7 @@ class CustomerControllerTest {
     private CustomerService customerService;
 
     @Test
+    @WithMockUser(roles = {"USER"})
     void getAllCustomers_usesPaginationParams() throws Exception {
         CustomerDto dto = new CustomerDto();
         dto.setId(1L);
@@ -58,6 +61,7 @@ class CustomerControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"ADMIN"})
     void createCustomer_whenBodyInvalid_returnsBadRequest() throws Exception {
         CustomerDto dto = new CustomerDto();
         dto.setFirstName("");
@@ -65,6 +69,7 @@ class CustomerControllerTest {
         dto.setEmail("wrong-email");
 
         mockMvc.perform(post("/api/customers")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -74,6 +79,7 @@ class CustomerControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"USER"})
     void getAllCustomers_whenSortFieldInvalid_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/customers")
                         .param("sortBy", "dropTable")

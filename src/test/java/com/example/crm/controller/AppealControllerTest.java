@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -30,6 +31,7 @@ class AppealControllerTest {
     private AppealService appealService;
 
     @Test
+    @WithMockUser(roles = {"USER"})
     void getAllAppeals_withoutParams_usesDefaults() throws Exception {
         AppealDto dto = new AppealDto();
         dto.setId(10L);
@@ -50,6 +52,7 @@ class AppealControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"USER"})
     void getAllAppeals_whenSizeTooLarge_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/appeals").param("size", "500"))
                 .andExpect(status().isBadRequest())

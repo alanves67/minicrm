@@ -1,0 +1,127 @@
+:root {
+    --ws-bg: #fdf6ef;
+    --ws-surface: #fffaf5;
+    --ws-muted: #f3e6d8;
+    --ws-border: #e6d5c1;
+    --ws-text: #4a3b2f;
+    --ws-accent: #b7795f;
+    --ws-accent-hover: #a36a53;
+    --ws-secondary: #c7a992;
+}
+
+body {
+    background: linear-gradient(180deg, #fef8f2 0%, var(--ws-bg) 100%);
+    color: var(--ws-text);
+}
+
+.navbar {
+    background: #6f4e3d !important;
+    box-shadow: 0 2px 12px rgba(111, 78, 61, 0.25);
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: #fff8f1 !important;
+}
+
+.navbar .nav-link.active {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+}
+
+.container .card,
+.table-responsive,
+.alert,
+.pagination .page-link {
+    border-color: var(--ws-border);
+}
+
+.card,
+.table-responsive {
+    background-color: var(--ws-surface);
+    border: 1px solid var(--ws-border);
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(122, 93, 74, 0.12);
+}
+
+.card-header {
+    background-color: #f7ece0;
+    border-bottom: 1px solid var(--ws-border);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead.table-dark {
+    background-color: #8a624c !important;
+}
+
+.table thead.table-dark th {
+    background-color: #8a624c !important;
+    color: #fff8f1;
+}
+
+.btn-primary {
+    background-color: var(--ws-accent);
+    border-color: var(--ws-accent);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--ws-accent-hover);
+    border-color: var(--ws-accent-hover);
+}
+
+.btn-secondary {
+    background-color: var(--ws-secondary);
+    border-color: var(--ws-secondary);
+}
+
+.btn-warning {
+    background-color: #d8a75d;
+    border-color: #d8a75d;
+    color: #2f2219;
+}
+
+.btn-danger {
+    background-color: #be6957;
+    border-color: #be6957;
+}
+
+.form-control,
+.form-select {
+    border-color: var(--ws-border);
+    background-color: #fffdfb;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #c89578;
+    box-shadow: 0 0 0 0.2rem rgba(184, 121, 95, 0.2);
+}
+
+.pagination .page-link {
+    color: var(--ws-text);
+    background-color: #fff9f4;
+}
+
+.pagination .page-item.active .page-link,
+.pagination .page-link:hover {
+    color: #fff7f0;
+    background-color: var(--ws-accent);
+    border-color: var(--ws-accent);
+}
+
+.badge.bg-primary {
+    background-color: #c8886d !important;
+}
+
+.badge.bg-warning {
+    background-color: #e3ba7b !important;
+}
+
+.badge.bg-success {
+    background-color: #7fa37d !important;
+}
