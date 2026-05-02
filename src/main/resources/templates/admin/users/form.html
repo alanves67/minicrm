@@ -51,11 +51,17 @@
                             <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" th:if="${!editMode}">
                             <label for="password" class="form-label">Пароль *</label>
                             <input id="password" type="password" class="form-control" th:field="*{password}">
-                            <div class="form-text">Минимум 6 символов. При редактировании задайте новый пароль.</div>
+                            <div class="form-text">Минимум 6 символов.</div>
                             <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        </div>
+
+                        <div class="mb-3" th:if="${editMode}">
+                            <a class="btn btn-outline-primary btn-sm" th:href="@{/admin/users/{id}/password(id=${userForm.id})}">
+                                <i class="bi bi-key"></i> Сменить пароль
+                            </a>
                         </div>
 
                         <div class="mb-3">

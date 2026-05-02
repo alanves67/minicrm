@@ -1,6 +1,7 @@
 package com.example.crm.web;
 
 import com.example.crm.dto.AdminUserForm;
+import com.example.crm.dto.AdminUserPasswordForm;
 import com.example.crm.exception.ConflictException;
 import com.example.crm.exception.NotFoundException;
 import com.example.crm.model.AppUser;
@@ -56,6 +57,11 @@ public class AdminUserWebController {
             model.addAttribute("roles", UserRole.values());
             model.addAttribute("editMode", false);
             return "admin/users/form";
+        } catch (IllegalArgumentException ex) {
+            result.rejectValue("password", "invalid", ex.getMessage());
+            model.addAttribute("roles", UserRole.values());
+            model.addAttribute("editMode", false);
+            return "admin/users/form";
         }
     }
 
@@ -68,12 +74,52 @@ public class AdminUserWebController {
             form.setUsername(user.getUsername());
             form.setRole(user.getRole());
             form.setEnabled(user.isEnabled());
-            form.setPassword("");
 
             model.addAttribute("userForm", form);
             model.addAttribute("roles", UserRole.values());
             model.addAttribute("editMode", true);
             return "admin/users/form";
+        } catch (NotFoundException ex) {
+            redirectAttributes.addAttribute("error", ex.getMessage());
+            return "redirect:/admin/users";
+        }
+    }
+
+    @GetMapping("/{id}/password")
+    public String showPasswordForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            AppUser user = adminUserService.getUserById(id);
+            model.addAttribute("userId", user.getId());
+            model.addAttribute("username", user.getUsername());
+            model.addAttribute("passwordForm", new AdminUserPasswordForm());
+            return "admin/users/password";
+        } catch (NotFoundException ex) {
+            redirectAttributes.addAttribute("error", ex.getMessage());
+            return "redirect:/admin/users";
+        }
+    }
+
+    @PostMapping("/{id}/password")
+    public String changePassword(@PathVariable Long id,
+                                 @Valid @ModelAttribute("passwordForm") AdminUserPasswordForm passwordForm,
+                                 BindingResult result,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            AppUser user = adminUserService.getUserById(id);
+            model.addAttribute("userId", user.getId());
+            model.addAttribute("username", user.getUsername());
+            return "admin/users/password";
+        }
+        try {
+            adminUserService.changePassword(id, passwordForm.getPassword());
+            return "redirect:/admin/users?passwordChanged";
+        } catch (IllegalArgumentException ex) {
+            result.rejectValue("password", "invalid", ex.getMessage());
+            AppUser user = adminUserService.getUserById(id);
+            model.addAttribute("userId", user.getId());
+            model.addAttribute("username", user.getUsername());
+            return "admin/users/password";
         } catch (NotFoundException ex) {
             redirectAttributes.addAttribute("error", ex.getMessage());
             return "redirect:/admin/users";

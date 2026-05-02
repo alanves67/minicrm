@@ -35,6 +35,9 @@ public class AdminUserService {
         if (appUserRepository.existsByUsername(form.getUsername())) {
             throw new ConflictException("Логин уже занят");
         }
+        if (form.getPassword() == null || form.getPassword().trim().length() < 6) {
+            throw new IllegalArgumentException("Пароль должен быть минимум 6 символов");
+        }
 
         AppUser user = new AppUser();
         user.setUsername(form.getUsername().trim());
@@ -57,9 +60,18 @@ public class AdminUserService {
         }
 
         existingUser.setUsername(form.getUsername().trim());
-        existingUser.setPasswordHash(passwordEncoder.encode(form.getPassword()));
         existingUser.setRole(form.getRole());
         existingUser.setEnabled(form.isEnabled());
+        appUserRepository.save(existingUser);
+    }
+
+    @Transactional
+    public void changePassword(Long id, String password) {
+        if (password == null || password.trim().length() < 6) {
+            throw new IllegalArgumentException("Пароль должен быть минимум 6 символов");
+        }
+        AppUser existingUser = getUserById(id);
+        existingUser.setPasswordHash(passwordEncoder.encode(password));
         appUserRepository.save(existingUser);
     }
 
